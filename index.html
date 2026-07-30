@@ -160,7 +160,6 @@
             font-size: 14px;
         }
 
-        /* Trending Tags Quick-Bar */
         .trending-bar {
             display: flex;
             gap: 6px;
@@ -208,18 +207,27 @@
         .post-title { font-size: 20px; margin: 8px 0 4px 0; color: #fff; word-break: break-word; }
         .post-content { margin-top: 6px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
         
-        /* Clickable Hashtag Styling inside posts */
         .hashtag { color: var(--accent-color); cursor: pointer; text-decoration: none; font-weight: 600; }
         .hashtag:hover { text-decoration: underline; }
 
-        .post-media {
+        /* FIXED MEDIA STYLING: Prevents cropping and fits photos/videos completely */
+        .post-media-container {
             margin-top: 10px;
-            max-width: 100%;
+            width: 100%;
+            background: #000000;
             border-radius: 12px;
             border: 1px solid var(--border-color);
-            max-height: 400px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-height: 500px;
+        }
+
+        .post-media {
+            width: 100%;
+            max-height: 500px;
             object-fit: contain;
-            background: #000;
             display: block;
         }
 
@@ -255,7 +263,7 @@
             font-size: 13px;
         }
 
-        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+        .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
         .comment-box { background: #181818; padding: 8px; border-radius: 8px; flex: 1; word-break: break-word; }
 
         .modal-overlay {
@@ -750,7 +758,6 @@
             loadPosts(tag);
         }
 
-        // Automatic Hashtag parser turning #word into clickable links
         function formatTextWithHashtags(text) {
             if (!text) return '';
             return text.replace(/(#[a-zA-Z0-9_]+)/g, '<span class="hashtag" onclick="filterByTag(\'$1\')">$1</span>');
@@ -830,11 +837,11 @@
                     if (post.mediaUrl) {
                         const urlLower = post.mediaUrl.toLowerCase();
                         if (urlLower.match(/\.(mp4|webm|mov|ogg)$/)) {
-                            mediaHTML = `<video src="${post.mediaUrl}" controls playsinline preload="metadata" class="post-media"></video>`;
+                            mediaHTML = `<div class="post-media-container"><video src="${post.mediaUrl}" controls playsinline preload="metadata" class="post-media"></video></div>`;
                         } else if (urlLower.match(/\.(mp3|wav|m4a|aac)$/)) {
                             mediaHTML = `<audio src="${post.mediaUrl}" controls class="post-audio"></audio>`;
                         } else {
-                            mediaHTML = `<img src="${post.mediaUrl}" class="post-media" alt="Media">`;
+                            mediaHTML = `<div class="post-media-container"><img src="${post.mediaUrl}" class="post-media" alt="Media"></div>`;
                         }
                     }
 
@@ -880,7 +887,6 @@
             }
         }
 
-        // Admin Action Handlers
         async function toggleVerification(status) {
             const handle = document.getElementById('adminHandle').value.trim();
             if (!handle) return alert("Enter handle!");
