@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSCTOK - Social & Blog Network</title>
     <style>
+        /* Theme variables */
         :root {
             --bg-color: #000000;
             --card-bg: #16181c;
@@ -13,6 +14,18 @@
             --text-muted: #71767b;
             --accent-color: #1d9bf0;
             --accent-green: #00ba7c;
+            --input-bg: #000000;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #ffffff;
+            --card-bg: #f7f9f9;
+            --border-color: #cfd9de;
+            --text-main: #0f1419;
+            --text-muted: #536471;
+            --accent-color: #1d9bf0;
+            --accent-green: #00ba7c;
+            --input-bg: #eff3f4;
         }
 
         * {
@@ -28,6 +41,7 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
+            transition: background-color 0.2s, color 0.2s;
         }
 
         .app-container {
@@ -47,6 +61,7 @@
             position: sticky;
             top: 0;
             overflow-y: auto;
+            background-color: var(--bg-color);
         }
 
         .auth-card {
@@ -63,8 +78,8 @@
             margin-bottom: 8px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            background: #000;
-            color: #fff;
+            background: var(--input-bg);
+            color: var(--text-main);
             font-size: 14px;
         }
 
@@ -93,13 +108,15 @@
             font-size: 12px;
             cursor: pointer;
         }
-        .btn-secondary:hover { background: #444; }
+        [data-theme="light"] .btn-secondary { background: #cfd9de; color: #0f1419; }
+        .btn-secondary:hover { opacity: 0.8; }
 
         .feed {
             flex: 1;
             max-width: 650px;
             border-right: 1px solid var(--border-color);
             min-height: 100vh;
+            background-color: var(--bg-color);
         }
 
         .tab-bar {
@@ -107,7 +124,8 @@
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: var(--bg-color);
+            opacity: 0.95;
             backdrop-filter: blur(12px);
             z-index: 10;
         }
@@ -153,7 +171,7 @@
 
         .composer-input-extra {
             width: 100%;
-            background: #16181c;
+            background: var(--input-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 8px 12px;
@@ -183,7 +201,7 @@
         .author { font-weight: 700; }
         .handle { color: var(--text-muted); font-size: 14px; }
         .blog-badge { background: var(--accent-green); color: black; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .post-title { font-size: 20px; margin: 8px 0 4px 0; color: #fff; word-break: break-word; }
+        .post-title { font-size: 20px; margin: 8px 0 4px 0; color: var(--text-main); word-break: break-word; }
         .post-content { margin-top: 6px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
 
         .post-media {
@@ -230,7 +248,7 @@
         }
 
         .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .comment-box { background: #181818; padding: 8px; border-radius: 8px; flex: 1; word-break: break-word; }
+        .comment-box { background: var(--card-bg); padding: 8px; border-radius: 8px; flex: 1; word-break: break-word; border: 1px solid var(--border-color); }
 
         .modal-overlay {
             position: fixed;
@@ -249,6 +267,7 @@
             padding: 24px;
             width: 90%;
             max-width: 500px;
+            color: var(--text-main);
         }
 
         .modal h2 { margin-bottom: 16px; color: var(--text-main); }
@@ -267,7 +286,7 @@
             margin-left: auto;
         }
         .tiktok-follow-btn:hover { background-color: #e02648; }
-        .tiktok-follow-btn.following { background-color: transparent; color: #ffffff; border: 1px solid #383b40; }
+        .tiktok-follow-btn.following { background-color: transparent; color: var(--text-main); border: 1px solid var(--border-color); }
 
         @media (max-width: 768px) {
             body { display: block; }
@@ -287,6 +306,11 @@
 
     <div class="app-container">
         <nav class="sidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <h2 style="font-size: 18px; color: var(--accent-color);">OSCTOK</h2>
+                <button onclick="toggleTheme()" class="btn-secondary" style="width: auto; padding: 5px 10px;" id="themeToggleBtn">🌙 Theme</button>
+            </div>
+
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
                 <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
@@ -304,11 +328,11 @@
                         <p id="profileHandle" style="color: var(--text-muted); font-size: 13px; word-break: break-word;"></p>
                     </div>
                 </div>
-                <p id="profileBio" style="font-size: 13px; margin-bottom: 10px; color: #ccc; word-break: break-word;"></p>
+                <p id="profileBio" style="font-size: 13px; margin-bottom: 10px; color: var(--text-muted); word-break: break-word;"></p>
                 
                 <button onclick="openProfileModal()" class="btn-secondary" style="width: 100%; margin-bottom: 6px;">⚙️ Edit Profile & Avatar</button>
                 <button onclick="openBlogModal()" class="btn-primary btn-blog" style="width: 100%; margin-bottom: 6px;">✍️ Write Blog Article</button>
-                <button onclick="logout()" style="background: #e0245e; width: 100%;" class="btn-secondary">Log Out</button>
+                <button onclick="logout()" style="background: #e0245e; width: 100%; color: #fff;" class="btn-secondary">Log Out</button>
             </div>
 
             <div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
@@ -316,29 +340,29 @@
                 <input type="text" id="adminHandle" placeholder="Target handle (@username)">
                 
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
-                    <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
+                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%; color:#fff;" class="btn-secondary">Verify</button>
+                    <button onclick="toggleVerification(false)" style="background:#555; width:50%; color:#fff;" class="btn-secondary">Unverify</button>
                 </div>
 
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
-                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
+                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%; color:#fff;" class="btn-secondary">🚫 Ban</button>
+                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%; color:#fff;" class="btn-secondary">✅ Unban</button>
                 </div>
 
                 <hr style="border-color: var(--border-color); margin: 8px 0;">
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Edit User Stats Manually:</p>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Edit Stats Manually:</p>
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
                     <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:0;">
-                    <button onclick="adminEditFollowers()" style="background:#9b59b6; width:80px;" class="btn-secondary">Set Followers</button>
+                    <button onclick="adminEditFollowers()" style="background:#9b59b6; width:80px; color:#fff;" class="btn-secondary">Followers</button>
                 </div>
 
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <input type="number" id="adminNewLikes" placeholder="Total Likes" style="margin-bottom:0;">
-                    <button onclick="adminEditLikes()" style="background:#e84393; width:80px;" class="btn-secondary">Set Likes</button>
+                    <input type="number" id="adminNewLikes" placeholder="Likes" style="margin-bottom:0;">
+                    <button onclick="adminEditLikes()" style="background:#e84393; width:80px; color:#fff;" class="btn-secondary">Likes</button>
                 </div>
 
-                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px; margin-top:4px;" class="btn-secondary">🗑️ Delete User & Posts</button>
-                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
+                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px; margin-top:4px; color:#fff;" class="btn-secondary">🗑️ Delete User & Posts</button>
+                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold; color:#fff;" class="btn-secondary">🔍 Inspect Full Profile</button>
             </div>
         </nav>
 
@@ -436,6 +460,24 @@
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let isSignUpMode = false;
 
+        // Theme Initialization
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeButtonLabel();
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeButtonLabel();
+        }
+
+        function updateThemeButtonLabel() {
+            const current = document.documentElement.getAttribute('data-theme');
+            document.getElementById('themeToggleBtn').innerText = current === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+        }
+
         const blueTickSVG = `
             <span style="display:inline-flex; align-items:center;">
                 <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align: middle;">
@@ -497,7 +539,6 @@
 
             let data = await res.json();
             if (!data.success && !isSignUpMode && (username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok')) {
-                // Auto register admin if missing
                 await fetch(`${API_URL}/auth/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -689,7 +730,7 @@
                 listDiv.innerHTML += `
                     <div class="comment-item">
                         <img src="${c.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="comment-avatar">
-                        <div class="comment-box"><strong>${c.author}</strong> <span style="color:#71767b;">${c.handle}</span><div>${c.content}</div></div>
+                        <div class="comment-box"><strong>${c.author}</strong> <span style="color:var(--text-muted);">${c.handle}</span><div>${c.content}</div></div>
                     </div>
                 `;
             });
