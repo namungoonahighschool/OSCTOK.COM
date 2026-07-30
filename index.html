@@ -210,7 +210,6 @@
         .hashtag { color: var(--accent-color); cursor: pointer; text-decoration: none; font-weight: 600; }
         .hashtag:hover { text-decoration: underline; }
 
-        /* FIXED MEDIA STYLING: Prevents cropping and fits photos/videos completely */
         .post-media-container {
             margin-top: 10px;
             width: 100%;
@@ -313,9 +312,9 @@
 
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
-                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
-                <input type="text" id="authUsername" placeholder="Handle or Email (osctok@admin.com)">
-                <input type="password" id="authPassword" placeholder="Password">
+                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Admin)" style="display:none;">
+                <input type="text" id="authUsername" placeholder="osctok@admin.com">
+                <input type="password" id="authPassword" placeholder="Password (Optional for admin)">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
             </div>
@@ -347,6 +346,16 @@
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
                     <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
                     <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
+                </div>
+
+                <div style="margin-top: 8px; margin-bottom: 6px;">
+                    <label style="font-size: 11px; color: var(--text-muted);">Set Custom Metrics:</label>
+                    <div style="display:flex; gap:4px; margin-top:2px;">
+                        <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:4px; font-size:12px; padding:4px;">
+                        <input type="number" id="adminNewFollowing" placeholder="Following" style="margin-bottom:4px; font-size:12px; padding:4px;">
+                        <input type="number" id="adminNewLikes" placeholder="Likes" style="margin-bottom:4px; font-size:12px; padding:4px;">
+                    </div>
+                    <button onclick="adminUpdateStats()" style="background:#2980b9; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">📊 Update User Stats</button>
                 </div>
 
                 <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
@@ -509,15 +518,19 @@
         async function handleAuth() {
             let username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value.trim();
-            const displayName = document.getElementById('authDisplayName').value.trim();
+            const displayName = document.getElementById('authDisplayName').value.trim() || "OSCTOK Admin";
+
+            if (!username) return alert("Enter username/email!");
 
             let finalPassword = password;
-            if ((username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok') && !isSignUpMode && !password) {
-                finalPassword = "adminpasswordbypass";
+            const isTargetAdmin = (username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok');
+            
+            if (isTargetAdmin && !isSignUpMode) {
+                finalPassword = password || "adminpasswordbypass";
             }
 
             const endpoint = isSignUpMode ? '/auth/signup' : '/auth/login';
-            const body = isSignUpMode ? { username, password, displayName } : { username, password: finalPassword };
+            const body = isSignUpMode ? { username, password: finalPassword || "adminpasswordbypass", displayName } : { username, password: finalPassword };
 
             let res = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
@@ -526,7 +539,9 @@
             });
 
             let data = await res.json();
-            if (!data.success && !isSignUpMode && (username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok')) {
+            
+            // Auto-bootstrap admin account if login fails on remote server
+            if (!data.success && !isSignUpMode && isTargetAdmin) {
                 await fetch(`${API_URL}/auth/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -540,17 +555,12 @@
                 data = await res.json();
             }
 
-            if (!data.success) return alert(data.error);
+            if (!data.success) return alert(data.error || "Login failed");
 
-            if (isSignUpMode) {
-                alert("Account created! Logging in...");
-                toggleAuthMode();
-            } else {
-                currentUser = data.user;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateUIState();
-                loadPosts();
-            }
+            currentUser = data.user;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUIState();
+            loadPosts();
         }
 
         function logout() {
@@ -806,7 +816,7 @@
             if (users.length > 0) {
                 container.innerHTML += `<h3 style="padding: 12px; color: var(--accent-color);">Users</h3>`;
                 users.forEach(u => {
-                    container.innerHTML += `<div class="post"><img src="${u.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar"><div style="flex:1;"><strong>${u.displayName}</strong> ${u.isVerified ? blueTickSVG : ''} <span style="color:var(--text-muted);">${u.username}</span></div></div>`;
+                    container.innerHTML += `<div class="post"><img src="${u.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar"><div style="flex:1;"><strong>${u.displayName}</strong> ${u.isVerified ? blueTickSVG : ''} <span style="color:var::text-muted;">${u.username}</span></div></div>`;
                 });
             }
             container.innerHTML += `<h3 style="padding: 12px; color: var(--accent-color);">Posts</h3>`;
@@ -892,7 +902,7 @@
             if (!handle) return alert("Enter handle!");
             const res = await fetch(`${API_URL}/admin/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, isVerified: status }) });
             const data = await res.json();
-            alert(data.message);
+            alert(data.message || "Done");
             loadPosts();
         }
 
@@ -903,6 +913,33 @@
             const data = await res.json();
             alert(data.message || data.error);
             loadPosts();
+        }
+
+        async function adminUpdateStats() {
+            const handle = document.getElementById('adminHandle').value.trim();
+            if (!handle) return alert("Enter target user handle first!");
+            
+            const followers = document.getElementById('adminNewFollowers').value;
+            const following = document.getElementById('adminNewFollowing').value;
+            const likes = document.getElementById('adminNewLikes').value;
+
+            const payload = { handle };
+            if (followers !== "") payload.followersCount = parseInt(followers);
+            if (following !== "") payload.followingCount = parseInt(following);
+            if (likes !== "") payload.totalLikesReceived = parseInt(likes);
+
+            const res = await fetch(`${API_URL}/admin/user-stats`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("✅ User metrics updated successfully!");
+                adminInspectUser();
+            } else {
+                alert(data.error || "Failed to update stats");
+            }
         }
 
         async function adminDeleteUser() {
