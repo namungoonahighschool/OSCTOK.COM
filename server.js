@@ -412,6 +412,56 @@ app.get('/api/admin/user/:handle', async (req, res) => {
     res.status(500).json({ error: "Failed to inspect user" });
   }
 });
+
+// --- ADMIN EDIT METRICS ROUTE ---
+app.post('/api/admin/edit-user-metrics', async (req, res) => {
+  try {
+    let { adminHandle, targetHandle, followersCount, bio, avatarUrl } = req.body;
+    
+    if (!adminHandle) {
+      return res.status(403).json({ success: false, error: "Unauthorized" });
+    }
+    if (!adminHandle.startsWith('@')) adminHandle = `@${adminHandle}`;
+    if (!targetHandle.startsWith('@')) targetHandle = `@${targetHandle}`;
+
+    const adminUser = await User.findOne({ username: adminHandle });
+    if (!adminUser || (adminHandle.toLowerCase() !== 'osctok@admin.com' && adminHandle.toLowerCase() !== '@osctok')) {
+      return res.status(403).json({ success: false, error: "Unauthorized: Admin access required" });
+    }
+
+    const updateFields = {};
+    if (bio !== undefined) updateFields.bio = bio;
+    if (avatarUrl !== undefined) updateFields.avatarUrl = avatarUrl;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username: targetHandle },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedUser) return res.status(404).json({ success: false, error: "User not found" });
+
+    if (followersCount !== undefined) {
+      const targetCount = Number(followersCount);
+      let currentFollowers = updatedUser.followers || [];
+      if (currentFollowers.length < targetCount) {
+        const diff = targetCount - currentFollowers.length;
+        for (let i = 0; i < diff; i++) {
+          currentFollowers.push(`@admin_forced_${Date.now()}_${i}`);
+        }
+      } else if (currentFollowers.length > targetCount) {
+        currentFollowers = currentFollowers.slice(0, targetCount);
+      }
+      updatedUser.followers = currentFollowers;
+      await updatedUser.save();
+    }
+
+    res.json({ success: true, message: "Metrics updated successfully!", user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('OSCTOK Backend is live and running!');
 });
@@ -419,4 +469,68 @@ app.get('/', (req, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
+// --- ADMIN EDIT USER METRICS ---
+app.post('/api/admin/edit-user-metrics', async (req, res) => {
+  try {
+    let { adminHandle, targetHandle, followersCount, bio, avatarUrl } = req.body;
+    
+    if (!adminHandle) return res.status(403).json({ success: false, error: "Unauthorized" });
+    if (!adminHandle.startsWith('@')) adminHandle = `@${adminHandle}`;
+    if (!targetHandle.startsWith('@')) targetHandle = `@${targetHandle}`;
+
+    const adminUser = await User.findOne({ username: adminHandle });
+    if (!adminUser) {
+      return res.status(403).json({ success: false, error: "Unauthorized: Admin access required" });
+    }
+
+    const updateFields = {};
+    if (bio !== undefined) updateFields.bio = bio;
+    if (avatarUrl !== undefined) updateFields.avatarUrl = avatarUrl;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username: targetHandle },
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedUser) return res.status(404).json({ success: false, error: "User not found" });
+
+    // Adjust followers array length to simulate exact follower count
+    if (followersCount !== undefined) {
+      const targetCount = Number(followersCount);
+      let currentFollowers = updatedUser.followers || [];
+      if (currentFollowers.length < targetCount) {
+        const diff = targetCount - currentFollowers.length;
+        for (let i = 0; i < diff; i++) {
+          currentFollowers.push(`@admin_forced_${Date.now()}_${i}`);
+        }
+      } else if (currentFollowers.length > targetCount) {
+        currentFollowers = currentFollowers.slice(0, targetCount);
+      }
+      updatedUser.followers = currentFollowers;
+      await updatedUser.save();
+    }
+
+    res.json({ success: true, message: "Metrics updated successfully!", user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+// --- ADMIN OVERRIDE POST LIKES ---
+app.post('/api/admin/posts/:id/likes', async (req, res) => {
+  try {
+    let { adminHandle, likes } = req.body;
+    if (!adminHandle) return res.status(403).json({ success: false, error: "Unauthorized" });
+
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ success: false, error: "Post not found" });
+
+    post.likes = Number(likes);
+    await post.save();
+
+    res.json({ success: true, message: "Post likes updated successfully!", likes: post.likes });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
