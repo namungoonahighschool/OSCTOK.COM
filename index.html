@@ -59,8 +59,8 @@
         .auth-card h3 { margin-bottom: 10px; font-size: 16px; color: var(--accent-color); }
         .auth-card input, .auth-card textarea {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 8px;
+            margin-bottom: 8px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
             background: #000;
@@ -88,9 +88,9 @@
             background: #333;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 6px 12px;
             border-radius: 15px;
-            font-size: 13px;
+            font-size: 12px;
             cursor: pointer;
         }
         .btn-secondary:hover { background: #444; }
@@ -156,7 +156,7 @@
             background: #16181c;
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-radius: 8px;
             margin-bottom: 12px;
             font-size: 14px;
@@ -192,7 +192,8 @@
             border-radius: 12px;
             border: 1px solid var(--border-color);
             max-height: 400px;
-            object-fit: cover;
+            object-fit: contain;
+            background: #000;
             display: block;
         }
 
@@ -266,7 +267,7 @@
             margin-left: auto;
         }
         .tiktok-follow-btn:hover { background-color: #e02648; }
-        .tiktok-follow-btn.active { background-color: transparent; border: 1px solid var(--border-color); color: #fff; }
+        .tiktok-follow-btn.following { background-color: transparent; color: #ffffff; border: 1px solid #383b40; }
 
         @media (max-width: 768px) {
             body { display: block; }
@@ -289,8 +290,8 @@
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
                 <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
-                <input type="text" id="authUsername" placeholder="Email (e.g. admin@osctok.com)">
-                <input type="password" id="authPassword" placeholder="Password (None for admin)">
+                <input type="text" id="authUsername" placeholder="Handle or Email (osctok@admin.com)">
+                <input type="password" id="authPassword" placeholder="Password">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
             </div>
@@ -324,14 +325,26 @@
                     <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
                 </div>
 
-                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
+                <hr style="border-color: var(--border-color); margin: 8px 0;">
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Edit User Stats Manually:</p>
+                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+                    <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:0;">
+                    <button onclick="adminEditFollowers()" style="background:#9b59b6; width:80px;" class="btn-secondary">Set Followers</button>
+                </div>
+
+                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+                    <input type="number" id="adminNewLikes" placeholder="Total Likes" style="margin-bottom:0;">
+                    <button onclick="adminEditLikes()" style="background:#e84393; width:80px;" class="btn-secondary">Set Likes</button>
+                </div>
+
+                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px; margin-top:4px;" class="btn-secondary">🗑️ Delete User & Posts</button>
                 <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
             </div>
         </nav>
 
         <main class="feed">
             <div class="tab-bar">
-                <div class="tab active" id="tabHome">Home Feed</div>
+                <div class="tab active" id="tabHome">Feed</div>
             </div>
 
             <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
@@ -345,7 +358,7 @@
                 
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                     <input type="file" id="filePicker" accept="image/*,video/*,audio/*" style="display: none;" onchange="uploadFile()">
-                    <button class="btn-secondary" onclick="document.getElementById('filePicker').click()">📁 Attach Media (Photo/Video/Music)</button>
+                    <button class="btn-secondary" onclick="document.getElementById('filePicker').click()">📁 Attach Photo/Video/Music</button>
                     <span id="fileUploadStatus" style="font-size: 12px; color: var(--accent-color);"></span>
                 </div>
 
@@ -366,13 +379,13 @@
             <label style="font-size: 12px; color: var(--text-muted);">Profile Picture</label>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; margin-top: 4px; flex-wrap: wrap;">
                 <input type="file" id="avatarPicker" accept="image/*" style="display: none;" onchange="uploadAvatarFile()">
-                <button class="btn-secondary" onclick="document.getElementById('avatarPicker').click()">📷 Choose Profile Photo</button>
+                <button class="btn-secondary" onclick="document.getElementById('avatarPicker').click()">📷 Choose Picture from Device</button>
                 <span id="avatarUploadStatus" style="font-size: 12px; color: var(--accent-color);"></span>
             </div>
             <input type="hidden" id="editAvatarUrl">
 
             <label style="font-size: 12px; color: var(--text-muted);">Bio / Status</label>
-            <textarea id="editBio" class="composer-input-extra" style="height: 70px;" placeholder="Write your bio..."></textarea>
+            <textarea id="editBio" class="composer-input-extra" style="height: 70px;" placeholder="Write your bio or current status..."></textarea>
             
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeProfileModal()">Cancel</button>
@@ -386,7 +399,7 @@
             <h2>✍️ Write Blog Article</h2>
             <input type="text" id="blogTitle" class="composer-input-extra" placeholder="Article Title...">
             <input type="text" id="blogMediaUrl" class="composer-input-extra" placeholder="Cover Image URL (Optional)...">
-            <textarea id="blogContent" class="composer-input-extra" style="height: 150px;" placeholder="Write article content..."></textarea>
+            <textarea id="blogContent" class="composer-input-extra" style="height: 150px;" placeholder="Write your article content here..."></textarea>
             
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeBlogModal()">Cancel</button>
@@ -409,8 +422,8 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; margin-bottom: 12px;">
                 <div><strong>Followers:</strong> <span id="inspectFollowersCount">0</span></div>
                 <div><strong>Following:</strong> <span id="inspectFollowingCount">0</span></div>
-                <div><strong>Posts:</strong> <span id="inspectPostsCount">0</span></div>
-                <div><strong>Likes Received:</strong> <span id="inspectLikesCount">0</span></div>
+                <div><strong>Total Posts:</strong> <span id="inspectPostsCount">0</span></div>
+                <div><strong>Total Likes Received:</strong> <span id="inspectLikesCount">0</span></div>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="document.getElementById('inspectModal').style.display='none'">Close</button>
@@ -442,7 +455,8 @@
                 document.getElementById('profileBio').innerText = currentUser.bio || "No status or bio set yet.";
                 document.getElementById('profileAvatar').src = currentUser.avatarUrl || "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png";
 
-                if (currentUser.username.toLowerCase() === 'admin@osctok.com') {
+                const uname = currentUser.username.toLowerCase();
+                if (uname === 'osctok@admin.com' || uname === '@osctok' || uname === 'admin@osctok.com') {
                     adminPanel.style.display = 'block';
                 } else {
                     adminPanel.style.display = 'none';
@@ -463,40 +477,41 @@
         }
 
         async function handleAuth() {
-            const username = document.getElementById('authUsername').value.trim();
+            let username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value.trim();
             const displayName = document.getElementById('authDisplayName').value.trim();
 
             let finalPassword = password;
-            if (username.toLowerCase() === 'admin@osctok.com' && !isSignUpMode && !password) {
-                finalPassword = "adminpasswordbypass"; 
+            if ((username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok') && !isSignUpMode && !password) {
+                finalPassword = "adminpasswordbypass";
             }
 
             const endpoint = isSignUpMode ? '/auth/signup' : '/auth/login';
             const body = isSignUpMode ? { username, password, displayName } : { username, password: finalPassword };
 
-            const res = await fetch(`${API_URL}${endpoint}`, {
+            let res = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
 
-            const data = await res.json();
-            if (!data.success) {
-                if (!isSignUpMode && username.toLowerCase() === 'admin@osctok.com') {
-                    const regRes = await fetch(`${API_URL}/auth/signup`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: 'admin@osctok.com', password: 'adminpasswordbypass', displayName: 'OSCTOK Admin' })
-                    });
-                    const regData = await regRes.json();
-                    if (regData.success) {
-                        handleAuth();
-                        return;
-                    }
-                }
-                return alert(data.error);
+            let data = await res.json();
+            if (!data.success && !isSignUpMode && (username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok')) {
+                // Auto register admin if missing
+                await fetch(`${API_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'osctok@admin.com', password: 'adminpasswordbypass', displayName: 'OSCTOK Admin' })
+                });
+                res = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password: 'adminpasswordbypass' })
+                });
+                data = await res.json();
             }
+
+            if (!data.success) return alert(data.error);
 
             if (isSignUpMode) {
                 alert("Account created! Logging in...");
@@ -729,7 +744,7 @@
                     if (post.mediaUrl) {
                         const urlLower = post.mediaUrl.toLowerCase();
                         if (urlLower.match(/\.(mp4|webm|mov|ogg)$/)) {
-                            mediaHTML = `<video src="${post.mediaUrl}" controls class="post-media"></video>`;
+                            mediaHTML = `<video src="${post.mediaUrl}" controls playsinline class="post-media"></video>`;
                         } else if (urlLower.match(/\.(mp3|wav|m4a|aac)$/)) {
                             mediaHTML = `<audio src="${post.mediaUrl}" controls class="post-audio"></audio>`;
                         } else {
@@ -741,8 +756,8 @@
                     const isFollowing = currentUser && Array.isArray(currentUser.following) && currentUser.following.includes(post.handle);
                     const isSelf = currentUser && currentUser.username === post.handle;
 
-                    let followBtnHTML = currentUser && !isSelf ? `<button class="tiktok-follow-btn ${isFollowing ? 'active' : ''}" onclick="followUser('${post.handle}')">${isFollowing ? 'Following' : '+ Follow'}</button>` : '';
-                    let adminDeleteBtn = currentUser && currentUser.username.toLowerCase() === 'admin@osctok.com' ? `<span onclick="adminDeletePost('${post._id}')" style="cursor:pointer; color:#ff4757; font-size:12px; margin-left:auto;">🗑️ Delete</span>` : '';
+                    let followBtnHTML = currentUser && !isSelf ? `<button class="tiktok-follow-btn ${isFollowing ? 'following' : ''}" onclick="followUser('${post.handle}')">${isFollowing ? 'Following' : '+ Follow'}</button>` : '';
+                    let adminDeleteBtn = currentUser && (currentUser.username.toLowerCase() === 'osctok@admin.com' || currentUser.username.toLowerCase() === '@osctok') ? `<span onclick="adminDeletePost('${post._id}')" style="cursor:pointer; color:#ff4757; font-size:12px; margin-left:auto;">🗑️ Delete</span>` : '';
 
                     container.innerHTML += `
                         <article class="post">
@@ -798,6 +813,26 @@
             loadPosts();
         }
 
+        async function adminEditFollowers() {
+            const handle = document.getElementById('adminHandle').value.trim();
+            const followersCount = parseInt(document.getElementById('adminNewFollowers').value);
+            if (!handle || isNaN(followersCount)) return alert("Enter valid handle and follower number!");
+            
+            const res = await fetch(`${API_URL}/admin/user/followers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, followersCount }) });
+            const data = await res.json();
+            alert(data.message || "Followers updated successfully!");
+        }
+
+        async function adminEditLikes() {
+            const handle = document.getElementById('adminHandle').value.trim();
+            const likesCount = parseInt(document.getElementById('adminNewLikes').value);
+            if (!handle || isNaN(likesCount)) return alert("Enter valid handle and likes number!");
+            
+            const res = await fetch(`${API_URL}/admin/user/likes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, likesCount }) });
+            const data = await res.json();
+            alert(data.message || "Likes updated successfully!");
+        }
+
         async function adminDeleteUser() {
             const handle = document.getElementById('adminHandle').value.trim();
             if (!handle || !confirm(`Delete user ${handle}?`)) return;
@@ -825,10 +860,10 @@
             document.getElementById('inspectHandle').innerText = u.username;
             document.getElementById('inspectAvatar').src = u.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png';
             document.getElementById('inspectBio').innerText = u.bio || 'No bio';
-            document.getElementById('inspectFollowersCount').innerText = u.followersCount;
-            document.getElementById('inspectFollowingCount').innerText = u.followingCount;
-            document.getElementById('inspectPostsCount').innerText = u.totalPosts;
-            document.getElementById('inspectLikesCount').innerText = u.totalLikesReceived;
+            document.getElementById('inspectFollowersCount').innerText = u.followersCount || (u.followersList ? u.followersList.length : 0);
+            document.getElementById('inspectFollowingCount').innerText = u.followingCount || (u.followingList ? u.followingList.length : 0);
+            document.getElementById('inspectPostsCount').innerText = u.totalPosts || 0;
+            document.getElementById('inspectLikesCount').innerText = u.totalLikesReceived || 0;
             document.getElementById('inspectModal').style.display = 'flex';
         }
 
