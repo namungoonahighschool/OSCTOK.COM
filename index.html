@@ -312,9 +312,9 @@
 
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
-                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
-                <input type="text" id="authUsername" placeholder="Handle or Email (osctok@admin.com)">
-                <input type="password" id="authPassword" placeholder="Password">
+                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Admin)" style="display:none;">
+                <input type="text" id="authUsername" placeholder="osctok@admin.com">
+                <input type="password" id="authPassword" placeholder="Password (acu8aww112)">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
             </div>
@@ -346,6 +346,16 @@
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
                     <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
                     <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
+                </div>
+
+                <div style="margin-top: 8px; margin-bottom: 6px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+                    <label style="font-size: 11px; color: var(--accent-color); font-weight: bold;">✏️ Edit User Stats/Metrics:</label>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:4px; font-size:11px; padding:4px;">
+                        <input type="number" id="adminNewFollowing" placeholder="Following" style="margin-bottom:4px; font-size:11px; padding:4px;">
+                        <input type="number" id="adminNewLikes" placeholder="Likes" style="margin-bottom:4px; font-size:11px; padding:4px;">
+                    </div>
+                    <button onclick="adminUpdateStats()" style="background:#2980b9; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">💾 Save Metric Changes</button>
                 </div>
 
                 <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
@@ -512,7 +522,7 @@
 
             if (!username) return alert("Enter username/email!");
 
-            // Specific Admin Hardcoded Check for osctok@admin.com / acu8aww112
+            // Admin Bypass Login Check
             if (!isSignUpMode && username.toLowerCase() === 'osctok@admin.com' && password === 'acu8aww112') {
                 currentUser = {
                     username: 'osctok@admin.com',
@@ -889,7 +899,7 @@
             if (!handle) return alert("Enter handle!");
             const res = await fetch(`${API_URL}/admin/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, isVerified: status }) });
             const data = await res.json();
-            alert(data.message);
+            alert(data.message || "Done");
             loadPosts();
         }
 
@@ -900,6 +910,33 @@
             const data = await res.json();
             alert(data.message || data.error);
             loadPosts();
+        }
+
+        async function adminUpdateStats() {
+            const handle = document.getElementById('adminHandle').value.trim();
+            if (!handle) return alert("Enter target user handle first!");
+
+            const followers = document.getElementById('adminNewFollowers').value;
+            const following = document.getElementById('adminNewFollowing').value;
+            const likes = document.getElementById('adminNewLikes').value;
+
+            const payload = { handle };
+            if (followers !== "") payload.followersCount = parseInt(followers);
+            if (following !== "") payload.followingCount = parseInt(following);
+            if (likes !== "") payload.totalLikesReceived = parseInt(likes);
+
+            const res = await fetch(`${API_URL}/admin/user-stats`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("✅ User metrics updated successfully!");
+                adminInspectUser();
+            } else {
+                alert(data.error || "Failed to update stats");
+            }
         }
 
         async function adminDeleteUser() {
