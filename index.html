@@ -785,7 +785,7 @@
                     if (post.mediaUrl) {
                         const urlLower = post.mediaUrl.toLowerCase();
                         if (urlLower.match(/\.(mp4|webm|mov|ogg)$/)) {
-                            mediaHTML = `<video src="${post.mediaUrl}" controls playsinline class="post-media"></video>`;
+                            mediaHTML = `<video src="${post.mediaUrl}" controls playsinline preload="metadata" class="post-media"></video>`;
                         } else if (urlLower.match(/\.(mp3|wav|m4a|aac)$/)) {
                             mediaHTML = `<audio src="${post.mediaUrl}" controls class="post-audio"></audio>`;
                         } else {
