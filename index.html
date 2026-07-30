@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSCTOK - Social & Blog Network</title>
     <style>
-        /* Theme variables */
         :root {
             --bg-color: #000000;
             --card-bg: #16181c;
@@ -14,18 +13,6 @@
             --text-muted: #71767b;
             --accent-color: #1d9bf0;
             --accent-green: #00ba7c;
-            --input-bg: #000000;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #ffffff;
-            --card-bg: #f7f9f9;
-            --border-color: #cfd9de;
-            --text-main: #0f1419;
-            --text-muted: #536471;
-            --accent-color: #1d9bf0;
-            --accent-green: #00ba7c;
-            --input-bg: #eff3f4;
         }
 
         * {
@@ -41,13 +28,12 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            transition: background-color 0.2s, color 0.2s;
         }
 
         .app-container {
             display: flex;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
         }
 
         .sidebar {
@@ -61,7 +47,6 @@
             position: sticky;
             top: 0;
             overflow-y: auto;
-            background-color: var(--bg-color);
         }
 
         .auth-card {
@@ -78,9 +63,8 @@
             margin-bottom: 8px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            background: var(--input-bg);
-            color: var(--text-main);
-            font-size: 14px;
+            background: #000;
+            color: #fff;
         }
 
         .btn-primary {
@@ -92,7 +76,6 @@
             border-radius: 20px;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
         }
         .btn-primary:hover { background: #1a8cd8; }
 
@@ -108,15 +91,13 @@
             font-size: 12px;
             cursor: pointer;
         }
-        [data-theme="light"] .btn-secondary { background: #cfd9de; color: #0f1419; }
-        .btn-secondary:hover { opacity: 0.8; }
+        .btn-secondary:hover { background: #444; }
 
         .feed {
             flex: 1;
             max-width: 650px;
             border-right: 1px solid var(--border-color);
             min-height: 100vh;
-            background-color: var(--bg-color);
         }
 
         .tab-bar {
@@ -124,8 +105,7 @@
             border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
-            background-color: var(--bg-color);
-            opacity: 0.95;
+            background-color: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(12px);
             z-index: 10;
         }
@@ -171,7 +151,7 @@
 
         .composer-input-extra {
             width: 100%;
-            background: var(--input-bg);
+            background: #16181c;
             border: 1px solid var(--border-color);
             color: var(--text-main);
             padding: 8px 12px;
@@ -179,6 +159,30 @@
             margin-bottom: 12px;
             font-size: 14px;
         }
+
+        /* Trending Tags Quick-Bar */
+        .trending-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(22, 24, 28, 0.5);
+            white-space: nowrap;
+        }
+        .trending-bar::-webkit-scrollbar { display: none; }
+        .tag-pill {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tag-pill:hover { background: var(--accent-color); color: #fff; }
 
         .post {
             padding: 16px;
@@ -201,8 +205,12 @@
         .author { font-weight: 700; }
         .handle { color: var(--text-muted); font-size: 14px; }
         .blog-badge { background: var(--accent-green); color: black; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
-        .post-title { font-size: 20px; margin: 8px 0 4px 0; color: var(--text-main); word-break: break-word; }
+        .post-title { font-size: 20px; margin: 8px 0 4px 0; color: #fff; word-break: break-word; }
         .post-content { margin-top: 6px; font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+        
+        /* Clickable Hashtag Styling inside posts */
+        .hashtag { color: var(--accent-color); cursor: pointer; text-decoration: none; font-weight: 600; }
+        .hashtag:hover { text-decoration: underline; }
 
         .post-media {
             margin-top: 10px;
@@ -248,7 +256,7 @@
         }
 
         .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .comment-box { background: var(--card-bg); padding: 8px; border-radius: 8px; flex: 1; word-break: break-word; border: 1px solid var(--border-color); }
+        .comment-box { background: #181818; padding: 8px; border-radius: 8px; flex: 1; word-break: break-word; }
 
         .modal-overlay {
             position: fixed;
@@ -286,30 +294,14 @@
             margin-left: auto;
         }
         .tiktok-follow-btn:hover { background-color: #e02648; }
-        .tiktok-follow-btn.following { background-color: transparent; color: var(--text-main); border: 1px solid var(--border-color); }
-
-        @media (max-width: 768px) {
-            body { display: block; }
-            .app-container { flex-direction: column; width: 100%; }
-            .sidebar { 
-                width: 100%; 
-                height: auto; 
-                position: relative; 
-                border-right: none; 
-                border-bottom: 1px solid var(--border-color); 
-            }
-            .feed { max-width: 100%; border-right: none; }
-        }
+        .tiktok-follow-btn.following { background-color: transparent; color: #ffffff; border: 1px solid #383b40; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <nav class="sidebar">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                <h2 style="font-size: 18px; color: var(--accent-color);">OSCTOK</h2>
-                <button onclick="toggleTheme()" class="btn-secondary" style="width: auto; padding: 5px 10px;" id="themeToggleBtn">🌙 Theme</button>
-            </div>
+            <h2 style="font-size: 20px; color: var(--accent-color); padding-left: 5px;">🔥 OSCTOK</h2>
 
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
@@ -328,11 +320,11 @@
                         <p id="profileHandle" style="color: var(--text-muted); font-size: 13px; word-break: break-word;"></p>
                     </div>
                 </div>
-                <p id="profileBio" style="font-size: 13px; margin-bottom: 10px; color: var(--text-muted); word-break: break-word;"></p>
+                <p id="profileBio" style="font-size: 13px; margin-bottom: 10px; color: #ccc; word-break: break-word;"></p>
                 
                 <button onclick="openProfileModal()" class="btn-secondary" style="width: 100%; margin-bottom: 6px;">⚙️ Edit Profile & Avatar</button>
                 <button onclick="openBlogModal()" class="btn-primary btn-blog" style="width: 100%; margin-bottom: 6px;">✍️ Write Blog Article</button>
-                <button onclick="logout()" style="background: #e0245e; width: 100%; color: #fff;" class="btn-secondary">Log Out</button>
+                <button onclick="logout()" style="background: #e0245e; width: 100%;" class="btn-secondary">Log Out</button>
             </div>
 
             <div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
@@ -340,45 +332,50 @@
                 <input type="text" id="adminHandle" placeholder="Target handle (@username)">
                 
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%; color:#fff;" class="btn-secondary">Verify</button>
-                    <button onclick="toggleVerification(false)" style="background:#555; width:50%; color:#fff;" class="btn-secondary">Unverify</button>
+                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
+                    <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
                 </div>
 
                 <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%; color:#fff;" class="btn-secondary">🚫 Ban</button>
-                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%; color:#fff;" class="btn-secondary">✅ Unban</button>
+                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
+                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
                 </div>
 
-                <hr style="border-color: var(--border-color); margin: 8px 0;">
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Edit Stats Manually:</p>
-                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:0;">
-                    <button onclick="adminEditFollowers()" style="background:#9b59b6; width:80px; color:#fff;" class="btn-secondary">Followers</button>
-                </div>
-
-                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <input type="number" id="adminNewLikes" placeholder="Likes" style="margin-bottom:0;">
-                    <button onclick="adminEditLikes()" style="background:#e84393; width:80px; color:#fff;" class="btn-secondary">Likes</button>
-                </div>
-
-                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px; margin-top:4px; color:#fff;" class="btn-secondary">🗑️ Delete User & Posts</button>
-                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold; color:#fff;" class="btn-secondary">🔍 Inspect Full Profile</button>
+                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
+                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
             </div>
         </nav>
 
         <main class="feed">
             <div class="tab-bar">
-                <div class="tab active" id="tabHome">Feed</div>
+                <div class="tab active" id="tabHome" onclick="switchTab('feed')">Feed / For You</div>
+                <div class="tab" id="tabExplore" onclick="switchTab('explore')">Explore Tags</div>
             </div>
 
             <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
                 <input type="text" id="searchInput" class="composer-input-extra" 
-                       placeholder="🔍 Search users, posts, or blogs..." 
+                       placeholder="🔍 Search users, posts, or tags (e.g. #FYP)..." 
                        onkeyup="handleSearch(event)" style="margin-bottom: 0;">
             </div>
 
+            <div class="trending-bar" id="trendingBar">
+                <span class="tag-pill" onclick="filterByTag('#OSCTOK')">#OSCTOK</span>
+                <span class="tag-pill" onclick="filterByTag('#FYP')">#FYP</span>
+                <span class="tag-pill" onclick="filterByTag('#Viral')">#Viral</span>
+                <span class="tag-pill" onclick="filterByTag('#Trending')">#Trending</span>
+                <span class="tag-pill" onclick="filterByTag('#Explore')">#Explore</span>
+                <span class="tag-pill" onclick="filterByTag('#Creator')">#Creator</span>
+                <span class="tag-pill" onclick="filterByTag('#Music')">#Music</span>
+                <span class="tag-pill" onclick="filterByTag('#Comedy')">#Comedy</span>
+                <span class="tag-pill" onclick="filterByTag('#Gaming')">#Gaming</span>
+                <span class="tag-pill" onclick="filterByTag('#Tech')">#Tech</span>
+                <span class="tag-pill" onclick="filterByTag('#AI')">#AI</span>
+                <span class="tag-pill" onclick="filterByTag('#Kampala')">#Kampala</span>
+                <span class="tag-pill" onclick="filterByTag('#Uganda')">#Uganda</span>
+            </div>
+
             <div class="composer">
-                <textarea id="postContent" placeholder="What is happening?!"></textarea>
+                <textarea id="postContent" placeholder="What is happening?! Use #tags to boost views!"></textarea>
                 
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
                     <input type="file" id="filePicker" accept="image/*,video/*,audio/*" style="display: none;" onchange="uploadFile()">
@@ -423,7 +420,7 @@
             <h2>✍️ Write Blog Article</h2>
             <input type="text" id="blogTitle" class="composer-input-extra" placeholder="Article Title...">
             <input type="text" id="blogMediaUrl" class="composer-input-extra" placeholder="Cover Image URL (Optional)...">
-            <textarea id="blogContent" class="composer-input-extra" style="height: 150px;" placeholder="Write your article content here..."></textarea>
+            <textarea id="blogContent" class="composer-input-extra" style="height: 150px;" placeholder="Write your article content here with #hashtags..."></textarea>
             
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeBlogModal()">Cancel</button>
@@ -459,24 +456,7 @@
         const API_URL = "https://osctok-social-app.onrender.com/api";
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let isSignUpMode = false;
-
-        // Theme Initialization
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        updateThemeButtonLabel();
-
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            updateThemeButtonLabel();
-        }
-
-        function updateThemeButtonLabel() {
-            const current = document.documentElement.getAttribute('data-theme');
-            document.getElementById('themeToggleBtn').innerText = current === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
-        }
+        let currentFilterTag = null;
 
         const blueTickSVG = `
             <span style="display:inline-flex; align-items:center;">
@@ -730,7 +710,7 @@
                 listDiv.innerHTML += `
                     <div class="comment-item">
                         <img src="${c.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="comment-avatar">
-                        <div class="comment-box"><strong>${c.author}</strong> <span style="color:var(--text-muted);">${c.handle}</span><div>${c.content}</div></div>
+                        <div class="comment-box"><strong>${c.author}</strong> <span style="color:#71767b;">${c.handle}</span><div>${c.content}</div></div>
                     </div>
                 `;
             });
@@ -748,6 +728,61 @@
             });
             input.value = '';
             fetchComments(postId);
+        }
+
+        function switchTab(tab) {
+            document.getElementById('tabHome').classList.remove('active');
+            document.getElementById('tabExplore').classList.remove('active');
+            if (tab === 'feed') {
+                document.getElementById('tabHome').classList.add('active');
+                currentFilterTag = null;
+                loadPosts();
+            } else {
+                document.getElementById('tabExplore').classList.add('active');
+                loadExploreTags();
+            }
+        }
+
+        function filterByTag(tag) {
+            currentFilterTag = tag;
+            document.getElementById('tabExplore').classList.add('active');
+            document.getElementById('tabHome').classList.remove('active');
+            loadPosts(tag);
+        }
+
+        // Automatic Hashtag parser turning #word into clickable links
+        function formatTextWithHashtags(text) {
+            if (!text) return '';
+            return text.replace(/(#[a-zA-Z0-9_]+)/g, '<span class="hashtag" onclick="filterByTag(\'$1\')">$1</span>');
+        }
+
+        async function loadExploreTags() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: var(--accent-color); margin-bottom: 15px;">🌐 Explore Trending Topics & Tags</h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Click any viral hashtag below to filter content instantly:</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                        <span class="tag-pill" onclick="filterByTag('#OSCTOK')">#OSCTOK</span>
+                        <span class="tag-pill" onclick="filterByTag('#FYP')">#FYP</span>
+                        <span class="tag-pill" onclick="filterByTag('#Viral')">#Viral</span>
+                        <span class="tag-pill" onclick="filterByTag('#Trending')">#Trending</span>
+                        <span class="tag-pill" onclick="filterByTag('#Explore')">#Explore</span>
+                        <span class="tag-pill" onclick="filterByTag('#Creator')">#Creator</span>
+                        <span class="tag-pill" onclick="filterByTag('#Music')">#Music</span>
+                        <span class="tag-pill" onclick="filterByTag('#Dance')">#Dance</span>
+                        <span class="tag-pill" onclick="filterByTag('#Comedy')">#Comedy</span>
+                        <span class="tag-pill" onclick="filterByTag('#Gaming')">#Gaming</span>
+                        <span class="tag-pill" onclick="filterByTag('#Football')">#Football</span>
+                        <span class="tag-pill" onclick="filterByTag('#Tech')">#Tech</span>
+                        <span class="tag-pill" onclick="filterByTag('#AI')">#AI</span>
+                        <span class="tag-pill" onclick="filterByTag('#Kampala')">#Kampala</span>
+                        <span class="tag-pill" onclick="filterByTag('#Uganda')">#Uganda</span>
+                        <span class="tag-pill" onclick="filterByTag('#News')">#News</span>
+                        <span class="tag-pill" onclick="filterByTag('#Live')">#Live</span>
+                    </div>
+                </div>
+            `;
         }
 
         async function handleSearch(event) {
@@ -769,16 +804,26 @@
             }
             container.innerHTML += `<h3 style="padding: 12px; color: var(--accent-color);">Posts</h3>`;
             posts.forEach(post => {
-                container.innerHTML += `<article class="post"><img src="${post.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar"><div class="post-body"><strong>${post.author}</strong><div class="post-content">${post.content}</div></div></article>`;
+                container.innerHTML += `<article class="post"><img src="${post.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar"><div class="post-body"><strong>${post.author}</strong><div class="post-content">${formatTextWithHashtags(post.content)}</div></div></article>`;
             });
         }
 
-        async function loadPosts() {
+        async function loadPosts(tagFilter = null) {
             try {
                 const res = await fetch(`${API_URL}/posts`);
-                const posts = await res.json();
+                let posts = await res.json();
+                
+                if (tagFilter) {
+                    posts = posts.filter(p => (p.content && p.content.toLowerCase().includes(tagFilter.toLowerCase())) || (p.title && p.title.toLowerCase().includes(tagFilter.toLowerCase())));
+                }
+
                 const container = document.getElementById('feedContainer');
                 container.innerHTML = '';
+
+                if (posts.length === 0) {
+                    container.innerHTML = `<p style="padding: 24px; text-align: center; color: var(--text-muted);">No posts found for ${tagFilter || 'this feed'}.</p>`;
+                    return;
+                }
 
                 for (const post of posts) {
                     let mediaHTML = '';
@@ -811,8 +856,8 @@
                                     ${isBlog ? '<span class="blog-badge">BLOG</span>' : ''}
                                     ${followBtnHTML}
                                 </div>
-                                ${isBlog ? `<h2 class="post-title">${post.title}</h2>` : ''}
-                                <div class="post-content">${post.content}</div>
+                                ${isBlog ? `<h2 class="post-title">${formatTextWithHashtags(post.title)}</h2>` : ''}
+                                <div class="post-content">${formatTextWithHashtags(post.content)}</div>
                                 ${mediaHTML}
                                 <div class="post-actions">
                                     <span class="like-btn" onclick="likePost('${post._id}')">❤️ ${post.likes || 0}</span>
@@ -854,26 +899,6 @@
             loadPosts();
         }
 
-        async function adminEditFollowers() {
-            const handle = document.getElementById('adminHandle').value.trim();
-            const followersCount = parseInt(document.getElementById('adminNewFollowers').value);
-            if (!handle || isNaN(followersCount)) return alert("Enter valid handle and follower number!");
-            
-            const res = await fetch(`${API_URL}/admin/user/followers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, followersCount }) });
-            const data = await res.json();
-            alert(data.message || "Followers updated successfully!");
-        }
-
-        async function adminEditLikes() {
-            const handle = document.getElementById('adminHandle').value.trim();
-            const likesCount = parseInt(document.getElementById('adminNewLikes').value);
-            if (!handle || isNaN(likesCount)) return alert("Enter valid handle and likes number!");
-            
-            const res = await fetch(`${API_URL}/admin/user/likes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, likesCount }) });
-            const data = await res.json();
-            alert(data.message || "Likes updated successfully!");
-        }
-
         async function adminDeleteUser() {
             const handle = document.getElementById('adminHandle').value.trim();
             if (!handle || !confirm(`Delete user ${handle}?`)) return;
@@ -901,8 +926,8 @@
             document.getElementById('inspectHandle').innerText = u.username;
             document.getElementById('inspectAvatar').src = u.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png';
             document.getElementById('inspectBio').innerText = u.bio || 'No bio';
-            document.getElementById('inspectFollowersCount').innerText = u.followersCount || (u.followersList ? u.followersList.length : 0);
-            document.getElementById('inspectFollowingCount').innerText = u.followingCount || (u.followingList ? u.followingList.length : 0);
+            document.getElementById('inspectFollowersCount').innerText = u.followersCount || 0;
+            document.getElementById('inspectFollowingCount').innerText = u.followingCount || 0;
             document.getElementById('inspectPostsCount').innerText = u.totalPosts || 0;
             document.getElementById('inspectLikesCount').innerText = u.totalLikesReceived || 0;
             document.getElementById('inspectModal').style.display = 'flex';
