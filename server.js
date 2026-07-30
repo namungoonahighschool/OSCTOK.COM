@@ -412,6 +412,9 @@ app.get('/api/admin/user/:handle', async (req, res) => {
     res.status(500).json({ error: "Failed to inspect user" });
   }
 });
+app.get('/', (req, res) => {
+  res.send('OSCTOK Backend is live and running!');
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {
