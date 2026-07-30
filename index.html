@@ -36,9 +36,8 @@
             max-width: 1200px;
         }
 
-        /* Sidebar Styling (X.com style left navigation / controls) */
         .sidebar {
-            width: 275px;
+            width: 280px;
             padding: 20px 15px;
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -96,7 +95,6 @@
         }
         .btn-secondary:hover { background: #444; }
 
-        /* Main Feed Section (X.com center timeline) */
         .feed {
             flex: 1;
             max-width: 650px;
@@ -267,11 +265,9 @@
             transition: background-color 0.2s, transform 0.1s;
             margin-left: auto;
         }
-
         .tiktok-follow-btn:hover { background-color: #e02648; }
         .tiktok-follow-btn.active { background-color: transparent; border: 1px solid var(--border-color); color: #fff; }
 
-        /* Responsive Design for Mobile Views (X.com layout adjustment) */
         @media (max-width: 768px) {
             body { display: block; }
             .app-container { flex-direction: column; width: 100%; }
@@ -294,7 +290,7 @@
                 <h3 id="authTitle">Login</h3>
                 <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
                 <input type="text" id="authUsername" placeholder="Email (e.g. admin@osctok.com)">
-                <input type="password" id="authPassword" placeholder="Password (None needed for admin)">
+                <input type="password" id="authPassword" placeholder="Password (None for admin)">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
             </div>
@@ -414,7 +410,7 @@
                 <div><strong>Followers:</strong> <span id="inspectFollowersCount">0</span></div>
                 <div><strong>Following:</strong> <span id="inspectFollowingCount">0</span></div>
                 <div><strong>Posts:</strong> <span id="inspectPostsCount">0</span></div>
-                <div><strong>Likes:</strong> <span id="inspectLikesCount">0</span></div>
+                <div><strong>Likes Received:</strong> <span id="inspectLikesCount">0</span></div>
             </div>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="document.getElementById('inspectModal').style.display='none'">Close</button>
@@ -446,7 +442,6 @@
                 document.getElementById('profileBio').innerText = currentUser.bio || "No status or bio set yet.";
                 document.getElementById('profileAvatar').src = currentUser.avatarUrl || "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png";
 
-                // SHOW ADMIN PANEL ONLY FOR admin@osctok.com
                 if (currentUser.username.toLowerCase() === 'admin@osctok.com') {
                     adminPanel.style.display = 'block';
                 } else {
@@ -472,7 +467,6 @@
             const password = document.getElementById('authPassword').value.trim();
             const displayName = document.getElementById('authDisplayName').value.trim();
 
-            // Passwordless bypass for admin@osctok.com
             let finalPassword = password;
             if (username.toLowerCase() === 'admin@osctok.com' && !isSignUpMode && !password) {
                 finalPassword = "adminpasswordbypass"; 
@@ -489,7 +483,6 @@
 
             const data = await res.json();
             if (!data.success) {
-                // If admin account doesn't exist yet on login, auto-register it smoothly!
                 if (!isSignUpMode && username.toLowerCase() === 'admin@osctok.com') {
                     const regRes = await fetch(`${API_URL}/auth/signup`, {
                         method: 'POST',
@@ -498,7 +491,7 @@
                     });
                     const regData = await regRes.json();
                     if (regData.success) {
-                        handleAuth(); // Retry login
+                        handleAuth();
                         return;
                     }
                 }
@@ -786,7 +779,7 @@
             }
         }
 
-        // Admin actions
+        // Admin Action Handlers
         async function toggleVerification(status) {
             const handle = document.getElementById('adminHandle').value.trim();
             if (!handle) return alert("Enter handle!");
