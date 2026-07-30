@@ -21,7 +21,7 @@ if (!fs.existsSync(uploadDir)) {
 }
 app.use('/uploads', express.static(uploadDir));
 
-// Configure Multer Storage (fixed path to uploadDir)
+// Configure Multer Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
@@ -311,6 +311,8 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+// --- ADMIN MANAGEMENT ROUTES ---
+
 app.post('/api/admin/verify', async (req, res) => {
   try {
     let { handle, isVerified } = req.body;
@@ -322,6 +324,92 @@ app.post('/api/admin/verify', async (req, res) => {
     res.json({ success: true, message: `Updated ${handle} verification status to ${isVerified}` });
   } catch (err) {
     res.status(500).json({ error: "Failed to update verification status" });
+  }
+});
+
+app.post('/api/admin/ban', async (req, res) => {
+  try {
+    let { handle, isBanned } = req.body;
+    if (!handle.startsWith('@')) handle = `@${handle}`;
+
+    const user = await User.findOneAndUpdate(
+      { username: handle },
+      { isBanned },
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({ 
+      success: true, 
+      message: `${handle} has been ${isBanned ? '🚫 BANNED' : '✅ UNBANNED'}.` 
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update ban status" });
+  }
+});
+
+app.post('/api/admin/delete-user', async (req, res) => {
+  try {
+    let { handle } = req.body;
+    if (!handle.startsWith('@')) handle = `@${handle}`;
+
+    const deletedUser = await User.findOneAndDelete({ username: handle });
+    if (!deletedUser) return res.status(404).json({ error: "User not found" });
+
+    await Post.deleteMany({ handle });
+    await Comment.deleteMany({ handle });
+
+    res.json({ 
+      success: true, 
+      message: `User ${handle} and all associated posts/comments have been deleted.` 
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+app.delete('/api/admin/posts/:id', async (req, res) => {
+  try {
+    await Post.findByIdAndDelete(req.params.id);
+    await Comment.deleteMany({ postId: req.params.id });
+    res.json({ success: true, message: "Post deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+});
+
+app.get('/api/admin/user/:handle', async (req, res) => {
+  try {
+    let handle = req.params.handle;
+    if (!handle.startsWith('@')) handle = `@${handle}`;
+
+    const user = await User.findOne({ username: handle }, '-password');
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const userPosts = await Post.find({ handle });
+    const totalLikes = userPosts.reduce((acc, post) => acc + (post.likes || 0), 0);
+
+    res.json({
+      success: true,
+      user: {
+        displayName: user.displayName,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        bio: user.bio,
+        isVerified: user.isVerified,
+        isBanned: user.isBanned,
+        followersCount: (user.followers || []).length,
+        followersList: user.followers || [],
+        followingCount: (user.following || []).length,
+        followingList: user.following || [],
+        totalPosts: userPosts.length,
+        totalLikesReceived: totalLikes,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to inspect user" });
   }
 });
 
