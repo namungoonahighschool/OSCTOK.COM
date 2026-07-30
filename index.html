@@ -269,7 +269,7 @@
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
                 <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
-                <input type="text" id="authUsername" placeholder="Handle (e.g. @purity)">
+                <input type="text" id="authUsername" placeholder="Handle or Email (e.g. osctok@admin.com)">
                 <input type="password" id="authPassword" placeholder="Password">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
@@ -290,7 +290,7 @@
                 <button onclick="logout()" style="background: #e0245e;" class="btn-secondary">Log Out</button>
             </div>
 
-            <div class="auth-card" style="border-color: #ff4757;">
+            <div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
                 <h3 style="color: #ff4757;">👑 Admin Controls</h3>
                 <input type="text" id="adminHandle" placeholder="Target handle (@username)">
                 
@@ -414,7 +414,6 @@
     </div>
 
     <script>
-        // UPDATED TO POINT TO YOUR LIVE RENDER BACKEND
         const API_URL = "https://osctok-social-app.onrender.com/api";
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let isSignUpMode = false;
@@ -429,6 +428,7 @@
         `;
 
         function updateUIState() {
+            const adminPanel = document.getElementById('adminPanel');
             if (currentUser) {
                 document.getElementById('authSection').style.display = 'none';
                 document.getElementById('profileSection').style.display = 'block';
@@ -436,9 +436,17 @@
                 document.getElementById('profileHandle').innerText = currentUser.username;
                 document.getElementById('profileBio').innerText = currentUser.bio || "No status or bio set yet.";
                 document.getElementById('profileAvatar').src = currentUser.avatarUrl || "https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png";
+
+                // SHOW ADMIN PANEL ONLY IF USER IS THE ADMIN
+                if (currentUser.username.toLowerCase() === 'osctok@admin.com' || currentUser.username.toLowerCase() === '@osctok') {
+                    adminPanel.style.display = 'block';
+                } else {
+                    adminPanel.style.display = 'none';
+                }
             } else {
                 document.getElementById('authSection').style.display = 'block';
                 document.getElementById('profileSection').style.display = 'none';
+                adminPanel.style.display = 'none';
             }
         }
 
@@ -819,6 +827,11 @@
                         `;
                     }
 
+                    let adminDeleteBtn = '';
+                    if (currentUser && (currentUser.username.toLowerCase() === 'osctok@admin.com' || currentUser.username.toLowerCase() === '@osctok')) {
+                        adminDeleteBtn = `<span onclick="adminDeletePost('${post._id}')" style="cursor:pointer; color:#ff4757; font-size:12px; margin-left:auto;">🗑️ Admin Delete</span>`;
+                    }
+
                     container.innerHTML += `
                         <article class="post">
                             <img src="${post.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar">
@@ -836,7 +849,7 @@
                                 <div class="post-actions">
                                     <span class="like-btn" onclick="likePost('${post._id}')">❤️ ${post.likes || 0}</span>
                                     <span class="comment-btn" onclick="toggleComments('${post._id}')">💬 Comments</span>
-                                    <span onclick="adminDeletePost('${post._id}')" style="cursor:pointer; color:#ff4757; font-size:12px; margin-left:auto;">🗑️ Admin Delete</span>
+                                    ${adminDeleteBtn}
                                 </div>
 
                                 <div id="comments-${post._id}" class="comments-section" style="display:none;">
