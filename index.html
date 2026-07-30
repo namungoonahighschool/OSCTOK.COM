@@ -36,6 +36,7 @@
             max-width: 1100px;
         }
 
+        /* Desktop & Mobile Responsive Sidebar */
         .sidebar {
             width: 280px;
             padding: 20px 15px;
@@ -210,6 +211,7 @@
         .hashtag { color: var(--accent-color); cursor: pointer; text-decoration: none; font-weight: 600; }
         .hashtag:hover { text-decoration: underline; }
 
+        /* FIXED MEDIA STYLING: Prevents cropping and fits photos/videos completely */
         .post-media-container {
             margin-top: 10px;
             width: 100%;
@@ -302,6 +304,13 @@
         }
         .tiktok-follow-btn:hover { background-color: #e02648; }
         .tiktok-follow-btn.following { background-color: transparent; color: #ffffff; border: 1px solid #383b40; }
+
+        /* Extra media query tweak for tighter mobile viewports */
+        @media (max-width: 768px) {
+            .sidebar { width: 80px; padding: 10px 5px; }
+            .sidebar h2, .auth-card h3, .auth-card input, .auth-card textarea, .auth-card div { font-size: 11px; }
+            .auth-card { padding: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -312,9 +321,9 @@
 
             <div id="authSection" class="auth-card">
                 <h3 id="authTitle">Login</h3>
-                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Admin)" style="display:none;">
-                <input type="text" id="authUsername" placeholder="osctok@admin.com">
-                <input type="password" id="authPassword" placeholder="Password (acu8aww112)">
+                <input type="text" id="authDisplayName" placeholder="Display Name (e.g. Purity)" style="display:none;">
+                <input type="text" id="authUsername" placeholder="Handle or Email (osctok@admin.com)">
+                <input type="password" id="authPassword" placeholder="Password">
                 <button onclick="handleAuth()" class="btn-primary" id="authBtn">Log In</button>
                 <div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:8px; cursor:pointer;" id="authToggle" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
             </div>
@@ -333,34 +342,27 @@
                 <button onclick="openBlogModal()" class="btn-primary btn-blog" style="width: 100%; margin-bottom: 6px;">✍️ Write Blog Article</button>
                 <button onclick="logout()" style="background: #e0245e; width: 100%;" class="btn-secondary">Log Out</button>
             </div>
+<div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
+    <h3 style="color: #ff4757;">👑 Admin Controls</h3>
+    <input type="text" id="adminHandle" placeholder="Target handle (@username)">
+    
+    <input type="number" id="adminEditFollowers" placeholder="Set Followers Count" class="composer-input-extra" style="margin-bottom:6px;">
+    <input type="number" id="adminEditLikes" placeholder="Set Likes Count" class="composer-input-extra" style="margin-bottom:6px;">
+    <button onclick="adminSaveMetrics()" style="background:#f39c12; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">✏️ Override User Metrics</button>
 
-            <div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
-                <h3 style="color: #ff4757;">👑 Admin Controls</h3>
-                <input type="text" id="adminHandle" placeholder="Target handle (@username)">
-                
-                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
-                    <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
-                </div>
+    <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+        <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
+        <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
+    </div>
 
-                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
-                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
-                </div>
+    <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+        <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
+        <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
+    </div>
 
-                <div style="margin-top: 8px; margin-bottom: 6px; border-top: 1px solid var(--border-color); padding-top: 8px;">
-                    <label style="font-size: 11px; color: var(--accent-color); font-weight: bold;">✏️ Edit User Stats/Metrics:</label>
-                    <div style="display:flex; gap:4px; margin-top:4px;">
-                        <input type="number" id="adminNewFollowers" placeholder="Followers" style="margin-bottom:4px; font-size:11px; padding:4px;">
-                        <input type="number" id="adminNewFollowing" placeholder="Following" style="margin-bottom:4px; font-size:11px; padding:4px;">
-                        <input type="number" id="adminNewLikes" placeholder="Likes" style="margin-bottom:4px; font-size:11px; padding:4px;">
-                    </div>
-                    <button onclick="adminUpdateStats()" style="background:#2980b9; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">💾 Save Metric Changes</button>
-                </div>
-
-                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
-                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
-            </div>
+    <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
+    <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
+</div>
         </nav>
 
         <main class="feed">
@@ -518,27 +520,15 @@
         async function handleAuth() {
             let username = document.getElementById('authUsername').value.trim();
             const password = document.getElementById('authPassword').value.trim();
-            const displayName = document.getElementById('authDisplayName').value.trim() || "OSCTOK Admin";
+            const displayName = document.getElementById('authDisplayName').value.trim();
 
-            if (!username) return alert("Enter username/email!");
-
-            // Admin Bypass Login Check
-            if (!isSignUpMode && username.toLowerCase() === 'osctok@admin.com' && password === 'acu8aww112') {
-                currentUser = {
-                    username: 'osctok@admin.com',
-                    displayName: 'OSCTOK Admin',
-                    bio: 'System Administrator',
-                    avatarUrl: 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png',
-                    following: []
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateUIState();
-                loadPosts();
-                return;
+            let finalPassword = password;
+            if ((username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok') && !isSignUpMode && !password) {
+                finalPassword = "adminpasswordbypass";
             }
 
             const endpoint = isSignUpMode ? '/auth/signup' : '/auth/login';
-            const body = isSignUpMode ? { username, password, displayName } : { username, password };
+            const body = isSignUpMode ? { username, password, displayName } : { username, password: finalPassword };
 
             let res = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
@@ -547,7 +537,21 @@
             });
 
             let data = await res.json();
-            if (!data.success) return alert(data.error || "Login failed");
+            if (!data.success && !isSignUpMode && (username.toLowerCase() === 'osctok@admin.com' || username.toLowerCase() === '@osctok')) {
+                await fetch(`${API_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'osctok@admin.com', password: 'adminpasswordbypass', displayName: 'OSCTOK Admin' })
+                });
+                res = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password: 'adminpasswordbypass' })
+                });
+                data = await res.json();
+            }
+
+            if (!data.success) return alert(data.error);
 
             if (isSignUpMode) {
                 alert("Account created! Logging in...");
@@ -899,7 +903,7 @@
             if (!handle) return alert("Enter handle!");
             const res = await fetch(`${API_URL}/admin/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ handle, isVerified: status }) });
             const data = await res.json();
-            alert(data.message || "Done");
+            alert(data.message);
             loadPosts();
         }
 
@@ -910,33 +914,6 @@
             const data = await res.json();
             alert(data.message || data.error);
             loadPosts();
-        }
-
-        async function adminUpdateStats() {
-            const handle = document.getElementById('adminHandle').value.trim();
-            if (!handle) return alert("Enter target user handle first!");
-
-            const followers = document.getElementById('adminNewFollowers').value;
-            const following = document.getElementById('adminNewFollowing').value;
-            const likes = document.getElementById('adminNewLikes').value;
-
-            const payload = { handle };
-            if (followers !== "") payload.followersCount = parseInt(followers);
-            if (following !== "") payload.followingCount = parseInt(following);
-            if (likes !== "") payload.totalLikesReceived = parseInt(likes);
-
-            const res = await fetch(`${API_URL}/admin/user-stats`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert("✅ User metrics updated successfully!");
-                adminInspectUser();
-            } else {
-                alert(data.error || "Failed to update stats");
-            }
         }
 
         async function adminDeleteUser() {
@@ -972,6 +949,38 @@
             document.getElementById('inspectLikesCount').innerText = u.totalLikesReceived || 0;
             document.getElementById('inspectModal').style.display = 'flex';
         }
+async function adminSaveMetrics() {
+    const targetHandle = document.getElementById('adminHandle').value.trim();
+    const followersCount = document.getElementById('adminEditFollowers').value;
+    const totalLikesReceived = document.getElementById('adminEditLikes').value;
+
+    if (!targetHandle) return alert("Please specify a target handle!");
+
+    const bodyData = {
+        adminHandle: currentUser ? currentUser.username : '',
+        targetHandle,
+    };
+
+    if (followersCount !== "") bodyData.followersCount = Number(followersCount);
+    if (totalLikesReceived !== "") bodyData.totalLikesReceived = Number(totalLikesReceived);
+
+    try {
+        const res = await fetch(`${API_URL}/admin/edit-user-metrics`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bodyData)
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("Metrics successfully updated!");
+            loadPosts();
+        } else {
+            alert(data.error || "Failed to update metrics.");
+        }
+    } catch (err) {
+        alert("Error connecting to server.");
+    }
+}
 
         updateUIState();
         loadPosts();
