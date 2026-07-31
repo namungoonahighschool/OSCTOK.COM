@@ -97,7 +97,9 @@ app.post('/api/upload', (req, res) => {
       return res.status(400).json({ success: false, error: "No file provided" });
     }
 
-    const fileUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+    // Use a relative path so it automatically uses whatever domain your app is hosted on (localhost or Render)
+    const fileUrl = `/uploads/${req.file.filename}`;
+    
     console.log(`✅ File uploaded successfully: ${req.file.filename}`);
     res.json({ success: true, fileUrl, fileType: req.file.mimetype });
   });
@@ -482,7 +484,7 @@ app.get('/', (req, res) => {
   res.send('OSCTOK Backend is live and running!');
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
