@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSCTOK - Social & Blog Network</title>
+    <title>OscTok.Com</title>
     <style>
         :root {
             --bg-color: #000000;
@@ -36,7 +36,7 @@
             max-width: 1100px;
         }
 
-        /* Desktop & Mobile Responsive Sidebar */
+        /* Desktop Sidebar */
         .sidebar {
             width: 280px;
             padding: 20px 15px;
@@ -48,6 +48,44 @@
             position: sticky;
             top: 0;
             overflow-y: auto;
+        }
+
+        /* Mobile Bottom Nav (Hidden on Desktop) */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            z-index: 1000;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+
+        .mobile-nav-item {
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+        }
+        .mobile-nav-item.active { color: var(--accent-color); }
+
+        /* Mobile Header Top Bar */
+        .mobile-header {
+            display: none;
+            position: sticky;
+            top: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 16px;
+            z-index: 10;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .auth-card {
@@ -99,6 +137,7 @@
             max-width: 650px;
             border-right: 1px solid var(--border-color);
             min-height: 100vh;
+            padding-bottom: 70px; /* Space for mobile bottom nav */
         }
 
         .tab-bar {
@@ -211,7 +250,6 @@
         .hashtag { color: var(--accent-color); cursor: pointer; text-decoration: none; font-weight: 600; }
         .hashtag:hover { text-decoration: underline; }
 
-        /* FIXED MEDIA STYLING: Prevents cropping and fits photos/videos completely */
         .post-media-container {
             margin-top: 10px;
             width: 100%;
@@ -274,7 +312,7 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 2000;
         }
 
         .modal {
@@ -305,15 +343,24 @@
         .tiktok-follow-btn:hover { background-color: #e02648; }
         .tiktok-follow-btn.following { background-color: transparent; color: #ffffff; border: 1px solid #383b40; }
 
-        /* Extra media query tweak for tighter mobile viewports */
+        /* RESPONSIVE MEDIA QUERIES FOR PHONES (X.com / Facebook Style) */
         @media (max-width: 768px) {
-            .sidebar { width: 80px; padding: 10px 5px; }
-            .sidebar h2, .auth-card h3, .auth-card input, .auth-card textarea, .auth-card div { font-size: 11px; }
-            .auth-card { padding: 8px; }
+            .sidebar { display: none; } /* Hide left sidebar completely on mobile */
+            .mobile-header { display: flex; } /* Show clean top header on mobile */
+            .mobile-bottom-nav { display: flex; } /* Show bottom navigation bar on mobile */
+            .app-container { flex-direction: column; }
+            .feed { max-width: 100%; border-right: none; }
         }
     </style>
 </head>
 <body>
+
+    <header class="mobile-header">
+        <h2 style="font-size: 18px; color: var(--accent-color);">🔥 OSCTOK</h2>
+        <div id="mobileAuthStatus" style="font-size: 13px;">
+            <button onclick="openMobileProfileDrawer()" class="btn-secondary" style="padding: 4px 10px;">👤 Account</button>
+        </div>
+    </header>
 
     <div class="app-container">
         <nav class="sidebar">
@@ -342,27 +389,24 @@
                 <button onclick="openBlogModal()" class="btn-primary btn-blog" style="width: 100%; margin-bottom: 6px;">✍️ Write Blog Article</button>
                 <button onclick="logout()" style="background: #e0245e; width: 100%;" class="btn-secondary">Log Out</button>
             </div>
-<div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
-    <h3 style="color: #ff4757;">👑 Admin Controls</h3>
-    <input type="text" id="adminHandle" placeholder="Target handle (@username)">
-    
-    <input type="number" id="adminEditFollowers" placeholder="Set Followers Count" class="composer-input-extra" style="margin-bottom:6px;">
-    <input type="number" id="adminEditLikes" placeholder="Set Likes Count" class="composer-input-extra" style="margin-bottom:6px;">
-    <button onclick="adminSaveMetrics()" style="background:#f39c12; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">✏️ Override User Metrics</button>
 
-    <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-        <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
-        <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
-    </div>
-
-    <div style="display:flex; gap: 5px; margin-bottom: 6px;">
-        <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
-        <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
-    </div>
-
-    <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
-    <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
-</div>
+            <div id="adminPanel" class="auth-card" style="border-color: #ff4757; display: none;">
+                <h3 style="color: #ff4757;">👑 Admin Controls</h3>
+                <input type="text" id="adminHandle" placeholder="Target handle (@username)">
+                <input type="number" id="adminEditFollowers" placeholder="Set Followers Count" class="composer-input-extra" style="margin-bottom:6px;">
+                <input type="number" id="adminEditLikes" placeholder="Set Likes Count" class="composer-input-extra" style="margin-bottom:6px;">
+                <button onclick="adminSaveMetrics()" style="background:#f39c12; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">✏️ Override User Metrics</button>
+                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+                    <button onclick="toggleVerification(true)" style="background:#0095F6; width:50%;" class="btn-secondary">Verify</button>
+                    <button onclick="toggleVerification(false)" style="background:#333; width:50%;" class="btn-secondary">Unverify</button>
+                </div>
+                <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+                    <button onclick="adminBanUser(true)" style="background:#e67e22; width:50%;" class="btn-secondary">🚫 Ban</button>
+                    <button onclick="adminBanUser(false)" style="background:#2ecc71; width:50%;" class="btn-secondary">✅ Unban</button>
+                </div>
+                <button onclick="adminDeleteUser()" style="background:#ff4757; width:100%; font-weight:bold; margin-bottom:6px;" class="btn-secondary">🗑️ Delete User & Posts</button>
+                <button onclick="adminInspectUser()" style="background:#8e44ad; width:100%; font-weight:bold;" class="btn-secondary">🔍 Inspect Full Profile</button>
+            </div>
         </nav>
 
         <main class="feed">
@@ -413,6 +457,13 @@
         </main>
     </div>
 
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-nav-item active" onclick="switchTab('feed')">🏠</div>
+        <div class="mobile-nav-item" onclick="switchTab('explore')">🌐</div>
+        <div class="mobile-nav-item" onclick="openBlogModal()">✍️</div>
+        <div class="mobile-nav-item" onclick="openMobileProfileDrawer()">👤</div>
+    </nav>
+
     <div id="profileModal" class="modal-overlay">
         <div class="modal">
             <h2>Edit Profile & Status</h2>
@@ -448,25 +499,12 @@
         </div>
     </div>
 
-    <div id="inspectModal" class="modal-overlay">
+    <div id="mobileProfileModal" class="modal-overlay">
         <div class="modal">
-            <h2 id="inspectName">User Profile</h2>
-            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
-                <img id="inspectAvatar" class="avatar" src="" alt="Avatar">
-                <div style="min-width:0;">
-                    <strong id="inspectHandle" style="font-size: 16px; word-break: break-word;"></strong>
-                    <p id="inspectBio" style="font-size: 13px; color: var(--text-muted); word-break: break-word;"></p>
-                </div>
-            </div>
-            <hr style="border-color: var(--border-color); margin-bottom: 12px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px; margin-bottom: 12px;">
-                <div><strong>Followers:</strong> <span id="inspectFollowersCount">0</span></div>
-                <div><strong>Following:</strong> <span id="inspectFollowingCount">0</span></div>
-                <div><strong>Total Posts:</strong> <span id="inspectPostsCount">0</span></div>
-                <div><strong>Total Likes Received:</strong> <span id="inspectLikesCount">0</span></div>
-            </div>
+            <h2>My Account</h2>
+            <div id="mobileAccountContent"></div>
             <div class="modal-actions">
-                <button class="btn-secondary" onclick="document.getElementById('inspectModal').style.display='none'">Close</button>
+                <button class="btn-secondary" onclick="document.getElementById('mobileProfileModal').style.display='none'">Close</button>
             </div>
         </div>
     </div>
@@ -506,6 +544,53 @@
                 document.getElementById('authSection').style.display = 'block';
                 document.getElementById('profileSection').style.display = 'none';
                 adminPanel.style.display = 'none';
+            }
+        }
+
+        function openMobileProfileDrawer() {
+            const modal = document.getElementById('mobileProfileModal');
+            const container = document.getElementById('mobileAccountContent');
+            if (!currentUser) {
+                container.innerHTML = `
+                    <p style="margin-bottom: 10px; font-size: 14px; color: var(--text-muted);">Please log in or sign up using the desktop sidebar view or create your session here.</p>
+                    <input type="text" id="mAuthUser" placeholder="Username/Email" class="composer-input-extra">
+                    <input type="password" id="mAuthPass" placeholder="Password" class="composer-input-extra">
+                    <button onclick="mobileLogin()" class="btn-primary">Log In</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <img src="${currentUser.avatarUrl || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'}" class="avatar">
+                        <div>
+                            <h3 style="margin:0;">${currentUser.displayName}</h3>
+                            <p style="color:var(--text-muted); font-size:13px;">${currentUser.username}</p>
+                        </div>
+                    </div>
+                    <p style="font-size:13px; margin-bottom:15px; color:#ccc;">${currentUser.bio || 'No bio set.'}</p>
+                    <button onclick="openProfileModal(); document.getElementById('mobileProfileModal').style.display='none';" class="btn-secondary" style="width:100%; margin-bottom:8px;">⚙️ Edit Profile</button>
+                    <button onclick="logout(); document.getElementById('mobileProfileModal').style.display='none';" class="btn-secondary" style="width:100%; background:#e0245e;">Log Out</button>
+                `;
+            }
+            modal.style.display = 'flex';
+        }
+
+        async function mobileLogin() {
+            const username = document.getElementById('mAuthUser').value.trim();
+            const password = document.getElementById('mAuthPass').value.trim();
+            let res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            let data = await res.json();
+            if (data.success) {
+                currentUser = data.user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUIState();
+                document.getElementById('mobileProfileModal').style.display = 'none';
+                loadPosts();
+            } else {
+                alert(data.error);
             }
         }
 
@@ -796,8 +881,6 @@
                         <span class="tag-pill" onclick="filterByTag('#AI')">#AI</span>
                         <span class="tag-pill" onclick="filterByTag('#Kampala')">#Kampala</span>
                         <span class="tag-pill" onclick="filterByTag('#Uganda')">#Uganda</span>
-                        <span class="tag-pill" onclick="filterByTag('#News')">#News</span>
-                        <span class="tag-pill" onclick="filterByTag('#Live')">#Live</span>
                     </div>
                 </div>
             `;
@@ -949,38 +1032,39 @@
             document.getElementById('inspectLikesCount').innerText = u.totalLikesReceived || 0;
             document.getElementById('inspectModal').style.display = 'flex';
         }
-async function adminSaveMetrics() {
-    const targetHandle = document.getElementById('adminHandle').value.trim();
-    const followersCount = document.getElementById('adminEditFollowers').value;
-    const totalLikesReceived = document.getElementById('adminEditLikes').value;
 
-    if (!targetHandle) return alert("Please specify a target handle!");
+        async function adminSaveMetrics() {
+            const targetHandle = document.getElementById('adminHandle').value.trim();
+            const followersCount = document.getElementById('adminEditFollowers').value;
+            const totalLikesReceived = document.getElementById('adminEditLikes').value;
 
-    const bodyData = {
-        adminHandle: currentUser ? currentUser.username : '',
-        targetHandle,
-    };
+            if (!targetHandle) return alert("Please specify a target handle!");
 
-    if (followersCount !== "") bodyData.followersCount = Number(followersCount);
-    if (totalLikesReceived !== "") bodyData.totalLikesReceived = Number(totalLikesReceived);
+            const bodyData = {
+                adminHandle: currentUser ? currentUser.username : '',
+                targetHandle,
+            };
 
-    try {
-        const res = await fetch(`${API_URL}/admin/edit-user-metrics`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(bodyData)
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert("Metrics successfully updated!");
-            loadPosts();
-        } else {
-            alert(data.error || "Failed to update metrics.");
+            if (followersCount !== "") bodyData.followersCount = Number(followersCount);
+            if (totalLikesReceived !== "") bodyData.totalLikesReceived = Number(totalLikesReceived);
+
+            try {
+                const res = await fetch(`${API_URL}/admin/edit-user-metrics`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("Metrics successfully updated!");
+                    loadPosts();
+                } else {
+                    alert(data.error || "Failed to update metrics.");
+                }
+            } catch (err) {
+                alert("Error connecting to server.");
+            }
         }
-    } catch (err) {
-        alert("Error connecting to server.");
-    }
-}
 
         updateUIState();
         loadPosts();
